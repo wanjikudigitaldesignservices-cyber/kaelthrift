@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { supabase, getImageUrl } from '@/lib/supabase';
+import { supabase } from '@/lib/supabase';
 import type { Product } from '@/lib/types';
 import { CATEGORIES } from '@/lib/schemas';
 import { Loader2 } from 'lucide-react';
@@ -34,7 +34,7 @@ export default function Admin() {
     try {
       const { error } = await supabase
         .from('products')
-        .update({ category: newCategory })
+        .update({ category: newCategory as any })
         .eq('id', id);
 
       if (error) throw error;
@@ -79,7 +79,7 @@ export default function Admin() {
               <tr key={product.id} style={{ borderBottom: '1px solid var(--color-warm-gray-light)' }}>
                 <td style={{ padding: '1rem' }}>
                   <img 
-                    src={getImageUrl(product.images[0])} 
+                    src={product.images[0]} 
                     alt={product.name} 
                     style={{ width: '60px', height: '60px', objectFit: 'cover', borderRadius: '4px' }}
                   />
