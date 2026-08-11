@@ -32,33 +32,29 @@ export const productSchema = z.object({
     .min(2, 'Product name must be at least 2 characters')
     .max(200, 'Product name must be under 200 characters')
     .trim(),
-  category: z.enum(CATEGORIES, {
-    errorMap: () => ({ message: 'Please select a category' }),
-  }),
+  category: z.enum(['dresses', 'tops', 'jeans', 'shoes', 'bags', 'accessories']),
   size: z
     .string()
     .min(1, 'Size is required')
     .max(20, 'Size must be under 20 characters')
     .trim(),
   price: z
-    .number({ invalid_type_error: 'Price must be a number' })
+    .number()
     .positive('Price must be greater than 0')
     .max(999999, 'Price seems too high'),
-  condition: z.enum(CONDITIONS, {
-    errorMap: () => ({ message: 'Please select a condition' }),
-  }),
+  condition: z.enum(['New with tags', 'Excellent', 'Good']),
   quantity: z
-    .number({ invalid_type_error: 'Quantity must be a number' })
+    .number()
     .int('Quantity must be a whole number')
     .min(0, 'Quantity cannot be negative')
     .default(1),
-  measurements: measurementsSchema.optional().default({}),
+  measurements: measurementsSchema.optional(),
   description: z
     .string()
     .max(2000, 'Description must be under 2000 characters')
     .optional()
     .default(''),
-  status: z.enum(STATUSES).default('available'),
+  status: z.enum(['available', 'reserved', 'sold']).default('available'),
   images: z
     .array(z.string().url('Invalid image URL'))
     .min(1, 'At least one image is required'),

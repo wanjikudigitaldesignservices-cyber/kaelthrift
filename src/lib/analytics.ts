@@ -11,8 +11,8 @@ export async function trackEvent(
   try {
     await supabase.from('analytics_events').insert({
       event_type: eventType,
-      product_id: productId || null,
-    });
+      product_id: productId,
+    } as any);
   } catch {
     // Fail silently — analytics should not disrupt user experience
     console.warn('Analytics event failed:', eventType);

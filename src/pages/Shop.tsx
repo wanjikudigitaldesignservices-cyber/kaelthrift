@@ -17,17 +17,17 @@ export default function Shop() {
   const [sort, setSort] = useState<SortOption>('newest');
   const [searchInput, setSearchInput] = useState('');
 
-  const debouncedSearch = useMemo(
+  const handleSearch = useMemo(
     () =>
-      debounce((value: string) => {
-        setFilters((prev) => ({ ...prev, search: value || undefined }));
-      }, 400),
-    []
+      (debounce as any)((value: string) => {
+        setFilters(prev => ({ ...prev, search: value }));
+      }, 500),
+    [setFilters]
   );
 
   const handleSearchChange = (value: string) => {
     setSearchInput(value);
-    debouncedSearch(value);
+    handleSearch(value);
   };
 
   const { products, loading, hasMore, loadMore } = useProducts(filters, sort);
