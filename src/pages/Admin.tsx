@@ -32,9 +32,8 @@ export default function Admin() {
   const updateProductCategory = async (id: string, newCategory: string) => {
     setSavingId(id);
     try {
-      const { error } = await supabase
-        .from('products')
-        .update({ category: newCategory as any })
+      const { error } = await (supabase.from('products') as any)
+        .update({ category: newCategory })
         .eq('id', id);
 
       if (error) throw error;
