@@ -37,6 +37,19 @@ async function seedProducts() {
     process.exit(1);
   }
 
+  // Create bucket if it doesn't exist
+  const { data: buckets, error: listError } = await supabase.storage.listBuckets();
+  if (listError) {
+    console.error(`❌ Error listing buckets:`, listError);
+  } else {
+    const bucketExists = buckets.some(b => b.name === 'product-images');
+    if (!bucketExists) {
+      console.log('📦 Creating "product-images" storage bucket...');
+      const { error: createError } = await supabase.storage.createBucket('product-images', { public: true });
+      if (createError) console.error(`❌ Error creating bucket:`, createError);
+    }
+  }
+
   const files = fs.readdirSync(IMAGES_DIR).filter(file => 
     file.toLowerCase().endsWith('.jpg') || 
     file.toLowerCase().endsWith('.jpeg') || 

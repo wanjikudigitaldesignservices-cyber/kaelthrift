@@ -73,8 +73,8 @@ export default function Shop() {
         />
       </div>
 
-      {/* Layout: Sidebar + Grid */}
-      <div style={{ display: 'flex', gap: '2rem', alignItems: 'flex-start' }}>
+      {/* Layout: Filters Top, Grid Below */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
         <FilterSidebar
           filters={filters}
           sort={sort}
@@ -82,7 +82,7 @@ export default function Shop() {
           onSortChange={setSort}
         />
 
-        <div style={{ flex: 1 }}>
+        <div style={{ width: '100%' }}>
           {loading && products.length === 0 ? (
             <div
               style={{
@@ -116,8 +116,8 @@ export default function Shop() {
               <div
                 style={{
                   display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))',
-                  gap: '1rem',
+                  gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
+                  gap: '1.5rem',
                 }}
               >
                 {products.map((product) => (
@@ -127,7 +127,7 @@ export default function Shop() {
 
               {/* Load More */}
               {hasMore && (
-                <div style={{ textAlign: 'center', marginTop: '2rem' }}>
+                <div style={{ textAlign: 'center', marginTop: '2.5rem' }}>
                   <button
                     className="btn-outline"
                     onClick={loadMore}
