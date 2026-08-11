@@ -39,22 +39,18 @@ export default function Navbar() {
           style={{
             display: 'flex',
             alignItems: 'center',
-            gap: '0.5rem',
             textDecoration: 'none',
           }}
         >
-          <ShoppingBag size={28} color="var(--color-forest)" />
-          <span
+          <img 
+            src="/logo.png" 
+            alt="KaelThrift Logo" 
             style={{
-              fontFamily: 'var(--font-display)',
-              fontSize: '1.5rem',
-              fontWeight: 800,
-              color: 'var(--color-forest-dark)',
-              letterSpacing: '-0.02em',
+              height: '48px',
+              width: 'auto',
+              objectFit: 'contain'
             }}
-          >
-            Kael<span style={{ color: 'var(--color-terracotta)' }}>Thrift</span>
-          </span>
+          />
         </Link>
 
         {/* Desktop Nav */}

@@ -73,6 +73,7 @@ export default function Home() {
 
         <div style={{ maxWidth: '700px', margin: '0 auto', position: 'relative', zIndex: 1 }}>
           <div
+            className="animate-fade-in-up delay-100"
             style={{
               display: 'inline-flex',
               alignItems: 'center',
@@ -92,6 +93,7 @@ export default function Home() {
           </div>
 
           <h1
+            className="animate-fade-in-up delay-200"
             style={{
               fontFamily: 'var(--font-display)',
               fontSize: 'clamp(2.2rem, 6vw, 3.5rem)',
@@ -106,6 +108,7 @@ export default function Home() {
           </h1>
 
           <p
+            className="animate-fade-in-up delay-300"
             style={{
               fontSize: '1.1rem',
               opacity: 0.9,
@@ -118,7 +121,7 @@ export default function Home() {
             Every piece is one-of-a-kind. Thrifted, styled, and delivered to your door across Kenya.
           </p>
 
-          <div style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+          <div className="animate-fade-in-up delay-400" style={{ display: 'flex', gap: '0.75rem', justifyContent: 'center', flexWrap: 'wrap' }}>
             <Link to="/shop" className="btn-whatsapp" style={{ width: 'auto', padding: '0.875rem 2.5rem' }}>
               Shop Now <ArrowRight size={18} />
             </Link>
@@ -147,9 +150,10 @@ export default function Home() {
             { icon: <Sparkles size={22} color="var(--color-terracotta)" />, title: 'One of a Kind', desc: 'Every piece is unique — once it\'s gone, it\'s gone' },
             { icon: <Heart size={22} color="var(--color-terracotta)" />, title: 'Curated Selection', desc: 'Hand-picked for quality, style, and value' },
             { icon: <Recycle size={22} color="var(--color-terracotta)" />, title: 'Sustainable Fashion', desc: 'Pre-loved style that\'s kind to the planet' },
-          ].map((prop) => (
+          ].map((prop, idx) => (
             <div
               key={prop.title}
+              className={`animate-fade-in-up delay-${(idx + 1) * 100}`}
               style={{
                 background: 'white',
                 borderRadius: '0.75rem',
@@ -224,6 +228,7 @@ export default function Home() {
           </div>
         ) : (
           <div
+            className="animate-fade-in-up delay-200"
             style={{
               display: 'grid',
               gridTemplateColumns: 'repeat(auto-fill, minmax(160px, 1fr))',
@@ -257,53 +262,55 @@ export default function Home() {
           Shop by Category
         </h2>
         <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))',
-            gap: '0.75rem',
-          }}
-        >
-          {CATEGORY_CARDS.map((cat) => (
-            <Link
-              key={cat.slug}
-              to={`/shop?category=${cat.slug}`}
-              style={{
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'flex-end',
-                padding: '1.5rem 1rem',
-                background: `linear-gradient(to top, rgba(0,0,0,0.8), rgba(0,0,0,0.1)), url("${cat.image}") center/cover no-repeat`,
-                borderRadius: '0.75rem',
-                textDecoration: 'none',
-                boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
-                transition: 'all 0.2s ease',
-                border: '2px solid transparent',
-                height: '180px',
-                overflow: 'hidden',
-              }}
-              onMouseOver={(e) => {
-                (e.currentTarget as HTMLElement).style.borderColor = 'var(--color-forest)';
-                (e.currentTarget as HTMLElement).style.transform = 'translateY(-2px)';
-              }}
-              onMouseOut={(e) => {
-                (e.currentTarget as HTMLElement).style.borderColor = 'transparent';
-                (e.currentTarget as HTMLElement).style.transform = 'translateY(0)';
-              }}
-            >
-              <span
+            className="animate-fade-in-up delay-300"
+            style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))',
+              gap: '0.75rem',
+            }}
+          >
+            {CATEGORY_CARDS.map((cat, idx) => (
+              <Link
+                key={cat.slug}
+                to={`/shop?category=${cat.slug}`}
+                className={`animate-fade-in-up delay-${(idx % 5 + 1) * 100}`}
                 style={{
-                  fontWeight: 700,
-                  fontSize: '1.1rem',
-                  color: 'white',
-                  textShadow: '0 2px 4px rgba(0,0,0,0.5)',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  justifyContent: 'flex-end',
+                  padding: '1.5rem 1rem',
+                  background: `linear-gradient(to top, rgba(0,0,0,0.8), rgba(0,0,0,0.1)), url("${cat.image}") center/cover no-repeat`,
+                  borderRadius: '0.75rem',
+                  textDecoration: 'none',
+                  boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
+                  transition: 'all 0.2s ease',
+                  border: '2px solid transparent',
+                  height: '180px',
+                  overflow: 'hidden',
+                }}
+                onMouseOver={(e) => {
+                  (e.currentTarget as HTMLElement).style.borderColor = 'var(--color-forest)';
+                  (e.currentTarget as HTMLElement).style.transform = 'translateY(-2px)';
+                }}
+                onMouseOut={(e) => {
+                  (e.currentTarget as HTMLElement).style.borderColor = 'transparent';
+                  (e.currentTarget as HTMLElement).style.transform = 'translateY(0)';
                 }}
               >
-                {cat.name}
-              </span>
-            </Link>
-          ))}
-        </div>
+                <span
+                  style={{
+                    fontWeight: 700,
+                    fontSize: '1.1rem',
+                    color: 'white',
+                    textShadow: '0 2px 4px rgba(0,0,0,0.5)',
+                  }}
+                >
+                  {cat.name}
+                </span>
+              </Link>
+            ))}
+          </div>
       </section>
     </div>
   );
