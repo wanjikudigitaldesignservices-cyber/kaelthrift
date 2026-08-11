@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { ShoppingBag, MessageCircle } from 'lucide-react';
+import { ShoppingBag, MessageCircle, Phone, CreditCard, Truck } from 'lucide-react';
 import { getGeneralWhatsAppLink } from '@/lib/whatsapp';
 
 export default function Footer() {
@@ -58,6 +58,7 @@ export default function Footer() {
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
             {[
               { label: 'Shop All', path: '/shop' },
+              { label: 'Wishlist', path: '/wishlist' },
               { label: 'About Us', path: '/about' },
             ].map((link) => (
               <Link
@@ -74,6 +75,37 @@ export default function Footer() {
                 {link.label}
               </Link>
             ))}
+          </div>
+        </div>
+
+        {/* Shipping Info */}
+        <div>
+          <h4
+            style={{
+              fontFamily: 'var(--font-body)',
+              fontSize: '0.85rem',
+              fontWeight: 700,
+              textTransform: 'uppercase',
+              letterSpacing: '0.08em',
+              marginBottom: '0.75rem',
+              color: 'var(--color-sage-light)',
+            }}
+          >
+            Shipping & Payment
+          </h4>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem', opacity: 0.85 }}>
+              <Truck size={14} />
+              <span>Nationwide delivery — KES 300</span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem', opacity: 0.85 }}>
+              <Phone size={14} />
+              <span>M-Pesa accepted</span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.85rem', opacity: 0.85 }}>
+              <CreditCard size={14} />
+              <span>Cash on delivery</span>
+            </div>
           </div>
         </div>
 

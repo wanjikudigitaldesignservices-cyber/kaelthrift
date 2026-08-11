@@ -1,6 +1,6 @@
-// @ts-nocheck
 import { useState, useCallback } from 'react';
 import { supabase } from '@/lib/supabase';
+import { MOCK_PRODUCTS, isSupabaseConfigured } from '@/lib/mockData';
 import type { Product, DashboardStats } from '@/lib/types';
 import type { ProductFormData } from '@/lib/schemas';
 
@@ -18,6 +18,33 @@ export function useAdminProducts() {
         setLoading(true);
         setError(null);
 
+        // ── Mock data path ───────────────────────────────────
+        if (!isSupabaseConfigured()) {
+          let result = [...MOCK_PRODUCTS];
+          if (statusFilter && statusFilter !== 'all') {
+            result = result.filter((p) => p.status === statusFilter);
+          }
+          if (search) {
+            const q = search.toLowerCase();
+            result = result.filter((p) => p.name.toLowerCase().includes(q));
+          }
+          switch (sort) {
+            case 'oldest':
+              result.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+              break;
+            case 'price-asc':
+              result.sort((a, b) => a.price - b.price);
+              break;
+            case 'price-desc':
+              result.sort((a, b) => b.price - a.price);
+              break;
+            default:
+              result.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+          }
+          return result;
+        }
+
+        // ── Supabase path ────────────────────────────────────
         let query = supabase.from('products').select('*');
 
         if (statusFilter && statusFilter !== 'all') {
@@ -60,6 +87,10 @@ export function useAdminProducts() {
       setLoading(true);
       setError(null);
 
+      if (!isSupabaseConfigured()) {
+        return { success: true };
+      }
+
       const { error: insertError } = await supabase.from('products').insert({
         name: data.name,
         category: data.category,
@@ -71,7 +102,7 @@ export function useAdminProducts() {
         description: data.description || '',
         status: data.status,
         images: data.images,
-      } as any);
+      } as Record<string, unknown>);
 
       if (insertError) throw insertError;
       return { success: true };
@@ -89,10 +120,13 @@ export function useAdminProducts() {
       setLoading(true);
       setError(null);
 
-      // @ts-ignore
+      if (!isSupabaseConfigured()) {
+        return { success: true };
+      }
+
       const { error: updateError } = await supabase
         .from('products')
-        .update(data as any)
+        .update(data as Record<string, unknown>)
         .eq('id', id);
 
       if (updateError) throw updateError;
@@ -111,12 +145,18 @@ export function useAdminProducts() {
       setLoading(true);
       setError(null);
 
+      if (!isSupabaseConfigured()) {
+        return { success: true };
+      }
+
       // Delete images from storage
       if (images.length > 0) {
-        const paths = images.map((url) => {
-          const parts = url.split('/product-images/');
-          return parts[1] || '';
-        }).filter(Boolean);
+        const paths = images
+          .map((url) => {
+            const parts = url.split('/product-images/');
+            return parts[1] || '';
+          })
+          .filter(Boolean);
 
         if (paths.length > 0) {
           await supabase.storage.from('product-images').remove(paths);
@@ -143,14 +183,19 @@ export function useAdminProducts() {
   const updateStatus = useCallback(async (id: string, status: string) => {
     try {
       setError(null);
+
+      if (!isSupabaseConfigured()) {
+        return { success: true };
+      }
+
       const updateData: Record<string, unknown> = { status };
       if (status === 'sold') {
         updateData.quantity = 0;
       }
-      // @ts-ignore
+
       const { error: updateError } = await supabase
         .from('products')
-        .update(updateData as any)
+        .update(updateData)
         .eq('id', id);
 
       if (updateError) throw updateError;
@@ -164,6 +209,19 @@ export function useAdminProducts() {
 
   const fetchStats = useCallback(async (): Promise<DashboardStats> => {
     try {
+      if (!isSupabaseConfigured()) {
+        const weekAgo = new Date();
+        weekAgo.setDate(weekAgo.getDate() - 7);
+        return {
+          total: MOCK_PRODUCTS.length,
+          available: MOCK_PRODUCTS.filter((p) => p.status === 'available' && p.quantity > 0).length,
+          soldThisWeek: MOCK_PRODUCTS.filter(
+            (p) => p.status === 'sold' && p.sold_at && new Date(p.sold_at) >= weekAgo
+          ).length,
+          reserved: MOCK_PRODUCTS.filter((p) => p.status === 'reserved').length,
+        };
+      }
+
       const { data: allProducts } = await supabase
         .from('products')
         .select('status, sold_at, quantity');
@@ -190,6 +248,10 @@ export function useAdminProducts() {
   }, []);
 
   const uploadImages = useCallback(async (files: File[]): Promise<string[]> => {
+    if (!isSupabaseConfigured()) {
+      return files.map(() => '/images/cat-dresses.png');
+    }
+
     const urls: string[] = [];
 
     for (const file of files) {
@@ -203,9 +265,7 @@ export function useAdminProducts() {
 
       if (uploadError) throw uploadError;
 
-      const { data } = supabase.storage
-        .from('product-images')
-        .getPublicUrl(filePath);
+      const { data } = supabase.storage.from('product-images').getPublicUrl(filePath);
 
       urls.push(data.publicUrl);
     }
@@ -214,6 +274,8 @@ export function useAdminProducts() {
   }, []);
 
   const deleteImage = useCallback(async (imageUrl: string) => {
+    if (!isSupabaseConfigured()) return;
+
     const parts = imageUrl.split('/product-images/');
     const path = parts[1];
     if (path) {

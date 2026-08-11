@@ -1,8 +1,11 @@
+import { useState } from 'react';
 import { useParams, Link, useLocation } from 'react-router-dom';
-import { ArrowLeft, MessageCircle, Ruler, Tag, Package, ShieldCheck } from 'lucide-react';
+import { ArrowLeft, ShoppingBag, Heart, Ruler, Tag, Package, ShieldCheck, Minus, Plus, Check } from 'lucide-react';
 import { useProduct } from '@/hooks/useProducts';
+import { useCart } from '@/hooks/useCart';
+import { useWishlist } from '@/hooks/useWishlist';
 import ImageCarousel from '@/components/product/ImageCarousel';
-import { getOrderWhatsAppLink, formatKES } from '@/lib/whatsapp';
+import { formatKES } from '@/lib/whatsapp';
 import { trackEvent, EVENTS } from '@/lib/analytics';
 
 function getConditionBadgeClass(condition: string): string {
@@ -22,6 +25,10 @@ export default function ProductDetail() {
   const { id } = useParams<{ id: string }>();
   const location = useLocation();
   const { product, loading, error } = useProduct(id);
+  const { addItem, items } = useCart();
+  const { isWishlisted, toggleWishlist } = useWishlist();
+  const [qty, setQty] = useState(1);
+  const [addedToCart, setAddedToCart] = useState(false);
 
   if (loading) {
     return (
@@ -61,15 +68,21 @@ export default function ProductDetail() {
   }
 
   const isSold = product.status === 'sold' || product.quantity === 0;
-  const productUrl = `${window.location.origin}${location.pathname}`;
-  const whatsAppLink = getOrderWhatsAppLink(product.name, product.price, productUrl);
+  const wishlisted = isWishlisted(product.id);
+  const inCart = items.find((item) => item.product.id === product.id);
+  const maxQty = product.quantity - (inCart?.quantity || 0);
 
   const measurements = product.measurements || {};
   const hasMeasurements = Object.values(measurements).some((v) => v && v.trim() !== '');
 
-  const handleOrderClick = () => {
-    trackEvent(EVENTS.WHATSAPP_ORDER_CLICK, product.id);
+  const handleAddToCart = () => {
+    addItem(product, qty);
+    setAddedToCart(true);
+    trackEvent(EVENTS.PRODUCT_VIEW, product.id);
+    setTimeout(() => setAddedToCart(false), 2000);
   };
+
+  void location; // referenced for potential future use
 
   return (
     <div style={{ maxWidth: '1000px', margin: '0 auto', padding: '1.5rem 1.25rem 3rem' }}>
@@ -91,14 +104,7 @@ export default function ProductDetail() {
         Back to shop
       </Link>
 
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: '1fr',
-          gap: '2rem',
-        }}
-        className="md:grid-cols-2"
-      >
+      <div className="product-detail-grid">
         {/* Images */}
         <div style={{ position: 'relative' }}>
           <ImageCarousel images={product.images} alt={product.name} />
@@ -260,19 +266,72 @@ export default function ProductDetail() {
             </div>
           )}
 
-          {/* WhatsApp Order Button */}
+          {/* Add to Cart / Sold */}
           {!isSold ? (
-            <a
-              href={whatsAppLink}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="btn-whatsapp"
-              onClick={handleOrderClick}
-              style={{ marginBottom: '0.75rem' }}
-            >
-              <MessageCircle size={20} />
-              Order via WhatsApp
-            </a>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+              {/* Quantity Selector */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                <span style={{ fontWeight: 600, fontSize: '0.9rem' }}>Quantity:</span>
+                <div className="quantity-stepper">
+                  <button
+                    onClick={() => setQty(Math.max(1, qty - 1))}
+                    className="qty-btn"
+                    disabled={qty <= 1}
+                    aria-label="Decrease quantity"
+                  >
+                    <Minus size={14} />
+                  </button>
+                  <span className="qty-value">{qty}</span>
+                  <button
+                    onClick={() => setQty(Math.min(maxQty, qty + 1))}
+                    className="qty-btn"
+                    disabled={qty >= maxQty}
+                    aria-label="Increase quantity"
+                  >
+                    <Plus size={14} />
+                  </button>
+                </div>
+              </div>
+
+              {/* Add to Cart Button */}
+              <button
+                className={`btn-primary ${addedToCart ? 'btn-added' : ''}`}
+                onClick={handleAddToCart}
+                disabled={maxQty <= 0}
+                style={{
+                  padding: '1rem',
+                  fontSize: '1.05rem',
+                  width: '100%',
+                  background: addedToCart ? 'var(--color-sage)' : undefined,
+                }}
+              >
+                {addedToCart ? (
+                  <>
+                    <Check size={20} /> Added to Cart!
+                  </>
+                ) : maxQty <= 0 ? (
+                  'Already in Cart'
+                ) : (
+                  <>
+                    <ShoppingBag size={20} /> Add to Cart — {formatKES(product.price * qty)}
+                  </>
+                )}
+              </button>
+
+              {/* Wishlist Button */}
+              <button
+                className="btn-outline"
+                onClick={() => toggleWishlist(product.id)}
+                style={{ width: '100%' }}
+              >
+                <Heart
+                  size={18}
+                  fill={wishlisted ? 'var(--color-terracotta)' : 'none'}
+                  color={wishlisted ? 'var(--color-terracotta)' : 'currentColor'}
+                />
+                {wishlisted ? 'Remove from Wishlist' : 'Add to Wishlist'}
+              </button>
+            </div>
           ) : (
             <div
               style={{
@@ -300,7 +359,7 @@ export default function ProductDetail() {
             }}
           >
             <ShieldCheck size={16} color="var(--color-sage)" />
-            <span>Quality checked · Exact measurements provided · No returns on thrift items</span>
+            <span>Quality checked · Exact measurements provided · Secure checkout</span>
           </div>
         </div>
       </div>

@@ -133,7 +133,7 @@ export default function FilterSidebar({
     <>
       {/* Mobile Filter Toggle */}
       <button
-        className="btn-outline md:hidden"
+        className="btn-outline filter-mobile-toggle"
         onClick={() => setIsOpen(true)}
         style={{ marginBottom: '1rem' }}
       >
@@ -142,14 +142,14 @@ export default function FilterSidebar({
       </button>
 
       {/* Desktop Filter Bar */}
-      <div className="hidden md:flex" style={{ 
-        width: '100%', 
-        alignItems: 'flex-end', 
+      <div className="filter-desktop" style={{
+        width: '100%',
+        alignItems: 'flex-end',
         gap: '1.25rem',
         padding: '1rem',
-        background: 'var(--color-creamy-white)',
+        background: 'white',
         borderRadius: '0.75rem',
-        border: '1px solid var(--color-warm-gray-light)',
+        border: '1px solid var(--color-cream-dark)',
         flexWrap: 'wrap'
       }}>
         {/* Sort */}

@@ -1,9 +1,60 @@
-// @ts-nocheck
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/lib/supabase';
+import { MOCK_PRODUCTS, isSupabaseConfigured } from '@/lib/mockData';
 import type { Product, ProductFilters, SortOption } from '@/lib/types';
 
 const PAGE_SIZE = 12;
+
+/**
+ * Apply filters and sort to a product array (used for mock data fallback).
+ */
+function filterAndSort(
+  products: Product[],
+  filters: ProductFilters,
+  sort: SortOption
+): Product[] {
+  let result = products.filter((p) => p.status === 'available' && p.quantity > 0);
+
+  if (filters.category) {
+    result = result.filter((p) => p.category === filters.category);
+  }
+  if (filters.size) {
+    result = result.filter((p) =>
+      p.size.toLowerCase().includes(filters.size!.toLowerCase())
+    );
+  }
+  if (filters.minPrice && filters.minPrice > 0) {
+    result = result.filter((p) => p.price >= filters.minPrice!);
+  }
+  if (filters.maxPrice && filters.maxPrice > 0) {
+    result = result.filter((p) => p.price <= filters.maxPrice!);
+  }
+  if (filters.condition) {
+    result = result.filter((p) => p.condition === filters.condition);
+  }
+  if (filters.search) {
+    const q = filters.search.toLowerCase();
+    result = result.filter((p) => p.name.toLowerCase().includes(q));
+  }
+
+  switch (sort) {
+    case 'price-asc':
+      result.sort((a, b) => a.price - b.price);
+      break;
+    case 'price-desc':
+      result.sort((a, b) => b.price - a.price);
+      break;
+    case 'newest':
+    default:
+      result.sort(
+        (a, b) =>
+          new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      );
+      break;
+  }
+
+  return result;
+}
 
 export function useProducts(filters: ProductFilters = {}, sort: SortOption = 'newest') {
   const [products, setProducts] = useState<Product[]>([]);
@@ -18,23 +69,38 @@ export function useProducts(filters: ProductFilters = {}, sort: SortOption = 'ne
         setLoading(true);
         setError(null);
 
+        // ── Mock data path ───────────────────────────────────
+        if (!isSupabaseConfigured()) {
+          const filtered = filterAndSort(MOCK_PRODUCTS, filters, sort);
+          const from = pageNum * PAGE_SIZE;
+          const sliced = filtered.slice(from, from + PAGE_SIZE);
+          setHasMore(from + PAGE_SIZE < filtered.length);
+
+          if (append) {
+            setProducts((prev) => [...prev, ...sliced]);
+          } else {
+            setProducts(sliced);
+          }
+          return;
+        }
+
+        // ── Supabase path ────────────────────────────────────
         let query = supabase
           .from('products')
           .select('*')
           .eq('status', 'available')
           .gt('quantity', 0);
 
-        // Apply filters
         if (filters.category) {
           query = query.eq('category', filters.category);
         }
         if (filters.size) {
           query = query.ilike('size', `%${filters.size}%`);
         }
-        if (filters.minPrice !== '' && filters.minPrice > 0) {
+        if (filters.minPrice && filters.minPrice > 0) {
           query = query.gte('price', filters.minPrice);
         }
-        if (filters.maxPrice !== '' && filters.maxPrice > 0) {
+        if (filters.maxPrice && filters.maxPrice > 0) {
           query = query.lte('price', filters.maxPrice);
         }
         if (filters.condition) {
@@ -44,7 +110,6 @@ export function useProducts(filters: ProductFilters = {}, sort: SortOption = 'ne
           query = query.ilike('name', `%${filters.search}%`);
         }
 
-        // Apply sort
         switch (sort) {
           case 'price-asc':
             query = query.order('price', { ascending: true });
@@ -58,7 +123,6 @@ export function useProducts(filters: ProductFilters = {}, sort: SortOption = 'ne
             break;
         }
 
-        // Pagination
         const from = pageNum * PAGE_SIZE;
         const to = from + PAGE_SIZE - 1;
         query = query.range(from, to);
@@ -115,6 +179,16 @@ export function useProduct(id: string | undefined) {
     async function fetchProduct() {
       try {
         setLoading(true);
+
+        // ── Mock data path ─────────────────────────────────
+        if (!isSupabaseConfigured()) {
+          const found = MOCK_PRODUCTS.find((p) => p.id === id) || null;
+          setProduct(found);
+          if (!found) setError('Product not found');
+          return;
+        }
+
+        // ── Supabase path ──────────────────────────────────
         const { data, error: queryError } = await supabase
           .from('products')
           .select('*')

@@ -1,7 +1,9 @@
 import { Link } from 'react-router-dom';
-import { Package } from 'lucide-react';
+import { Package, Heart, ShoppingBag } from 'lucide-react';
 import type { Product } from '@/lib/types';
 import { formatKES } from '@/lib/whatsapp';
+import { useCart } from '@/hooks/useCart';
+import { useWishlist } from '@/hooks/useWishlist';
 
 interface ProductCardProps {
   product: Product;
@@ -21,8 +23,23 @@ function getConditionBadgeClass(condition: string): string {
 }
 
 export default function ProductCard({ product }: ProductCardProps) {
+  const { addItem } = useCart();
+  const { isWishlisted, toggleWishlist } = useWishlist();
   const isSold = product.status === 'sold' || product.quantity === 0;
   const isLowStock = product.quantity > 0 && product.quantity <= 2;
+  const wishlisted = isWishlisted(product.id);
+
+  const handleAddToCart = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!isSold) addItem(product);
+  };
+
+  const handleToggleWishlist = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    toggleWishlist(product.id);
+  };
 
   return (
     <Link
@@ -33,7 +50,7 @@ export default function ProductCard({ product }: ProductCardProps) {
         pointerEvents: isSold ? 'none' : 'auto',
       }}
     >
-      <div className="card" style={{ position: 'relative', opacity: isSold ? 0.7 : 1 }}>
+      <div className="card product-card" style={{ position: 'relative', opacity: isSold ? 0.7 : 1 }}>
         {/* Image */}
         <div
           style={{
@@ -58,7 +75,7 @@ export default function ProductCard({ product }: ProductCardProps) {
                   inset: 0,
                   zIndex: 1,
                 }}
-                className={product.images.length > 1 ? 'hover:opacity-0' : ''}
+                className={product.images.length > 1 ? 'hover-fade' : ''}
               />
               {product.images.length > 1 && (
                 <img
@@ -99,7 +116,17 @@ export default function ProductCard({ product }: ProductCardProps) {
           )}
 
           {/* Quantity / Scarcity badges */}
-          <div style={{ position: 'absolute', top: '0.5rem', left: '0.5rem', display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+          <div
+            style={{
+              position: 'absolute',
+              top: '0.5rem',
+              left: '0.5rem',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '0.25rem',
+              zIndex: 3,
+            }}
+          >
             {product.quantity === 1 && !isSold && (
               <span className="badge badge-scarcity">1 of 1</span>
             )}
@@ -111,11 +138,35 @@ export default function ProductCard({ product }: ProductCardProps) {
           </div>
 
           {/* Condition badge */}
-          <div style={{ position: 'absolute', top: '0.5rem', right: '0.5rem' }}>
+          <div style={{ position: 'absolute', top: '0.5rem', right: '0.5rem', zIndex: 3 }}>
             <span className={getConditionBadgeClass(product.condition)}>
               {product.condition}
             </span>
           </div>
+
+          {/* Hover Actions Overlay */}
+          {!isSold && (
+            <div className="product-card-actions">
+              <button
+                onClick={handleToggleWishlist}
+                className={`product-action-btn ${wishlisted ? 'wishlisted' : ''}`}
+                aria-label={wishlisted ? 'Remove from wishlist' : 'Add to wishlist'}
+              >
+                <Heart
+                  size={18}
+                  fill={wishlisted ? 'var(--color-terracotta)' : 'none'}
+                  color={wishlisted ? 'var(--color-terracotta)' : 'white'}
+                />
+              </button>
+              <button
+                onClick={handleAddToCart}
+                className="product-action-btn cart-action"
+                aria-label="Add to cart"
+              >
+                <ShoppingBag size={18} />
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Info */}
