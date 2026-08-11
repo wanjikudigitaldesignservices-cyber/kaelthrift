@@ -44,23 +44,38 @@ export default function ProductCard({ product }: ProductCardProps) {
           }}
         >
           {product.images && product.images.length > 0 ? (
-            <img
-              src={product.images[0]}
-              alt={product.name}
-              loading="lazy"
-              style={{
-                width: '100%',
-                height: '100%',
-                objectFit: 'cover',
-                transition: 'transform 0.4s ease',
-              }}
-              onMouseOver={(e) => {
-                (e.target as HTMLImageElement).style.transform = 'scale(1.05)';
-              }}
-              onMouseOut={(e) => {
-                (e.target as HTMLImageElement).style.transform = 'scale(1)';
-              }}
-            />
+            <>
+              <img
+                src={product.images[0]}
+                alt={product.name}
+                loading="lazy"
+                style={{
+                  width: '100%',
+                  height: '100%',
+                  objectFit: 'cover',
+                  transition: 'opacity 0.3s ease, transform 0.4s ease',
+                  position: 'absolute',
+                  inset: 0,
+                  zIndex: 1,
+                }}
+                className={product.images.length > 1 ? 'hover:opacity-0' : ''}
+              />
+              {product.images.length > 1 && (
+                <img
+                  src={product.images[1]}
+                  alt={`${product.name} alternate view`}
+                  loading="lazy"
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'cover',
+                    transition: 'transform 0.4s ease',
+                    position: 'absolute',
+                    inset: 0,
+                  }}
+                />
+              )}
+            </>
           ) : (
             <div
               style={{
