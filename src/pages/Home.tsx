@@ -6,12 +6,12 @@ import type { Product } from '@/lib/types';
 import ProductCard from '@/components/product/ProductCard';
 
 const CATEGORY_CARDS = [
-  { name: 'Dresses', slug: 'dresses', emoji: '👗' },
-  { name: 'Tops', slug: 'tops', emoji: '👚' },
-  { name: 'Jeans', slug: 'jeans', emoji: '👖' },
-  { name: 'Shoes', slug: 'shoes', emoji: '👟' },
-  { name: 'Bags', slug: 'bags', emoji: '👜' },
-  { name: 'Accessories', slug: 'accessories', emoji: '✨' },
+  { name: 'Dresses', slug: 'dresses', image: '/images/cat-dresses.png' },
+  { name: 'Tops', slug: 'tops', image: '/images/cat-tops.png' },
+  { name: 'Jeans', slug: 'jeans', image: '/images/cat-jeans.png' },
+  { name: 'Shoes', slug: 'shoes', image: '/images/cat-shoes.png' },
+  { name: 'Bags', slug: 'bags', image: '/images/cat-bags.png' },
+  { name: 'Accessories', slug: 'accessories', image: '/images/cat-accessories.png' },
 ];
 
 export default function Home() {
@@ -39,7 +39,7 @@ export default function Home() {
       {/* Hero Section */}
       <section
         style={{
-          background: 'linear-gradient(135deg, var(--color-forest-dark) 0%, var(--color-forest) 50%, var(--color-sage) 100%)',
+          background: 'linear-gradient(135deg, rgba(34, 62, 54, 0.85) 0%, rgba(44, 85, 69, 0.85) 100%), url(/images/hero.png) center/cover no-repeat',
           color: 'white',
           padding: '4rem 1.25rem 5rem',
           textAlign: 'center',
@@ -271,14 +271,16 @@ export default function Home() {
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
-                justifyContent: 'center',
+                justifyContent: 'flex-end',
                 padding: '1.5rem 1rem',
-                background: 'white',
+                background: `linear-gradient(to top, rgba(0,0,0,0.8), rgba(0,0,0,0.1)), url(${cat.image}) center/cover no-repeat`,
                 borderRadius: '0.75rem',
                 textDecoration: 'none',
                 boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
                 transition: 'all 0.2s ease',
                 border: '2px solid transparent',
+                height: '180px',
+                overflow: 'hidden',
               }}
               onMouseOver={(e) => {
                 (e.currentTarget as HTMLElement).style.borderColor = 'var(--color-forest)';
@@ -289,12 +291,12 @@ export default function Home() {
                 (e.currentTarget as HTMLElement).style.transform = 'translateY(0)';
               }}
             >
-              <span style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>{cat.emoji}</span>
               <span
                 style={{
-                  fontWeight: 600,
-                  fontSize: '0.9rem',
-                  color: 'var(--color-charcoal)',
+                  fontWeight: 700,
+                  fontSize: '1.1rem',
+                  color: 'white',
+                  textShadow: '0 2px 4px rgba(0,0,0,0.5)',
                 }}
               >
                 {cat.name}
