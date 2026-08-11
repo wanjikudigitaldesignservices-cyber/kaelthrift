@@ -39,7 +39,7 @@ export default function Home() {
       {/* Hero Section */}
       <section
         style={{
-          background: 'linear-gradient(135deg, rgba(34, 62, 54, 0.85) 0%, rgba(44, 85, 69, 0.85) 100%), url(/images/hero.png) center/cover no-repeat',
+          background: 'linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.4)), url("/images/hero.png") center/cover no-repeat',
           color: 'white',
           padding: '4rem 1.25rem 5rem',
           textAlign: 'center',
@@ -273,7 +273,7 @@ export default function Home() {
                 alignItems: 'center',
                 justifyContent: 'flex-end',
                 padding: '1.5rem 1rem',
-                background: `linear-gradient(to top, rgba(0,0,0,0.8), rgba(0,0,0,0.1)), url(${cat.image}) center/cover no-repeat`,
+                background: `linear-gradient(to top, rgba(0,0,0,0.8), rgba(0,0,0,0.1)), url("${cat.image}") center/cover no-repeat`,
                 borderRadius: '0.75rem',
                 textDecoration: 'none',
                 boxShadow: '0 1px 3px rgba(0,0,0,0.06)',
